@@ -2,35 +2,46 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
     android:paddingLeft="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_vertical_margin"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingTop="8dp">
 
     <ImageView
         android:id="@+id/iv_image"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginRight="10dp" />
 
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="name"
-        android:textSize="@dimen/abc_text_size_medium_material"
+        android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/iv_image"
-        android:layout_alignParentTop="true" />
+        android:text="name"
+        android:textSize="@dimen/abc_text_size_medium_material" />
 
     <TextView
         android:id="@+id/tv_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="category"
-        android:textSize="@dimen/abc_text_size_small_material"
-        android:layout_toRightOf="@+id/iv_image"
         android:layout_below="@+id/tv_name"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@+id/iv_image"
+        android:text="category"
+        android:textSize="@dimen/abc_text_size_small_material" />
+
+    <ImageButton
+        android:id="@+id/btn_overflow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_more_vert_grey600_24dp"
+        android:background="@null"
+        android:scaleType="center"
+        android:layout_above="@+id/tv_category"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>

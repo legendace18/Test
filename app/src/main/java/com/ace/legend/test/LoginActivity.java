@@ -1,12 +1,20 @@
 package com.ace.legend.test;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.ace.legend.test.model.ResponseData;
+import com.ace.legend.test.utils.Conf;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
@@ -16,17 +24,29 @@ import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 import com.twitter.sdk.android.core.models.User;
 
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 
 public class LoginActivity extends Activity {
 
     TwitterLoginButton twt_login_button;
+    private EditText et_username, et_password;
+    private Button btn_login;
+    private ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        TextView tv_register = (TextView) findViewById(R.id.tv_register);
         twt_login_button = (TwitterLoginButton) findViewById(R.id.twt_login_button);
+        et_username = (EditText) findViewById(R.id.et_username);
+        et_password = (EditText) findViewById(R.id.et_password);
+        btn_login = (Button) findViewById(R.id.btn_login);
+
         twt_login_button.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
@@ -43,6 +63,54 @@ public class LoginActivity extends Activity {
                 Log.d("legend.ace18", "login failed");
             }
         });
+
+        tv_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btn_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String username = et_username.getText().toString();
+                String password = et_password.getText().toString();
+                loginUser(username, password);
+            }
+        });
+    }
+
+    private void loginUser(String username, String password) {
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Loading...");
+        pDialog.setCancelable(false);
+        pDialog.show();
+        RestAdapter adapter = new RestAdapter.Builder()
+                .setEndpoint(Conf.ENDPOINT)
+                .build();
+
+        ServerCalls api = adapter.create(ServerCalls.class);
+        api.login(username, password, new retrofit.Callback<ResponseData>() {
+            @Override
+            public void success(ResponseData responseData, Response response) {
+                pDialog.dismiss();
+                if (responseData.status == 1) {
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else if (responseData.status == 0) {
+                    Toast.makeText(LoginActivity.this, responseData.message, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                pDialog.dismiss();
+                Toast.makeText(LoginActivity.this, "" + error, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void getToken(TwitterSession session) {
@@ -52,7 +120,7 @@ public class LoginActivity extends Activity {
 
         String user_id = String.valueOf(session.getUserId());
         String username = session.getUserName();
-        Log.d("legend.ace18", "Token"+token+", Secret" + secret);
+        Log.d("legend.ace18", "Token" + token + ", Secret" + secret);
         Log.d("legend.ace18", "ID " + user_id + ", Username" + username);
 
         Twitter.getApiClient().getAccountService().verifyCredentials(true, false, new Callback<User>() {
