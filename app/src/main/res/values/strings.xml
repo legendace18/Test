@@ -20,4 +20,5 @@
         <item>Main</item>
         <item>Fused Location</item>
     </string-array>
+    <string name="title_activity_detail">DetailActivity</string>
 </resources>

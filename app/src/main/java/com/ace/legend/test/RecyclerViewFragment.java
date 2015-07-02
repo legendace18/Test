@@ -2,6 +2,7 @@ package com.ace.legend.test;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -40,6 +41,7 @@ public class RecyclerViewFragment extends Fragment implements CustomRecyclerAdap
     private RecyclerView recyclerView;
     private List<Flower> flowerList;
     private ProgressBar progressBar;
+    private CustomRecyclerAdapter adapter;
     NetworkHandler networkHandler;
 
     public static final String ENDPOINT = "http://services.hanselandpetal.com";
@@ -75,7 +77,8 @@ public class RecyclerViewFragment extends Fragment implements CustomRecyclerAdap
         recyclerView.addOnItemTouchListener(new RecyclerViewTouchListener(getActivity(), recyclerView, new ClickListener() {
             @Override
             public void onClick(View v, int position) {
-                Toast.makeText(getActivity(), "clicked at: " + position, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), "clicked at: " + position, Toast.LENGTH_LONG).show();
+                showDetailActivity(position);
             }
 
             @Override
@@ -123,7 +126,7 @@ public class RecyclerViewFragment extends Fragment implements CustomRecyclerAdap
     }
 
     private void updateViews() {
-        CustomRecyclerAdapter adapter = new CustomRecyclerAdapter(getActivity(), flowerList);
+        adapter = new CustomRecyclerAdapter(getActivity(), flowerList);
         adapter.setTouchListener(this);
         recyclerView.setAdapter(adapter);
     }
@@ -150,7 +153,7 @@ public class RecyclerViewFragment extends Fragment implements CustomRecyclerAdap
     }
 
     @Override
-    public void itemTouched(View v, int position) {
+    public void itemTouched(View v, final int position) {
         PopupMenu pMenu = new PopupMenu(getActivity(), v);
         pMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -158,8 +161,11 @@ public class RecyclerViewFragment extends Fragment implements CustomRecyclerAdap
                 int id = item.getItemId();
                 switch (id) {
                     case R.id.action_open:
+                        showDetailActivity(position);
                         break;
                     case R.id.action_delete:
+                        flowerList.remove(position);
+                        adapter.notifyItemRemoved(position);
                         break;
                 }
                 return true;
@@ -167,6 +173,17 @@ public class RecyclerViewFragment extends Fragment implements CustomRecyclerAdap
         });
         pMenu.inflate(R.menu.popup_menu);
         pMenu.show();
+    }
+
+    private void showDetailActivity(int position) {
+        Flower flower = flowerList.get(position);
+        Intent intent = new Intent(getActivity(), DetailActivity.class);
+        intent.putExtra("NAME", flower.getName());
+        intent.putExtra("CATEGORY", flower.getCategory());
+        intent.putExtra("PRICE",String.valueOf(flower.getPrice()));
+        intent.putExtra("INSTRUCTIONS", flower.getInstructions());
+        intent.putExtra("PHOTO", flower.getPhoto());
+        startActivity(intent);
     }
 
     class RecyclerViewTouchListener implements RecyclerView.OnItemTouchListener {
